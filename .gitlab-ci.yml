@@ -1,0 +1,86 @@
+stages:
+    - build
+    - unitTests
+    - integrationTests
+
+variables:
+  PROJECT_NAME: "app"
+  TESTS_NAME: "rle_gtests"
+  BINARY_PATH: "bin"
+
+linux:
+  tags:
+    - seminars
+  stage: build
+  
+  script: 
+    - cmake CMakeLists.txt
+    - make
+
+  cache:
+    paths:
+      - $BINARY_PATH/$PROJECT_NAME
+      - $BINARY_PATH/$TESTS_NAME
+    
+  artifacts:
+    paths:
+      - $BINARY_PATH/$PROJECT_NAME
+      - $BINARY_PATH/$TESTS_NAME
+    when: always
+
+win:
+  tags:
+    - seminars
+
+  stage: build
+  allow_failure: true
+
+  script:
+    - i686-w64-mingw32.static-cmake CMakeLists.txt
+    - make
+
+  artifacts:
+    paths:
+      - $BINARY_PATH/$PROJECT_NAME.exe
+      - $BINARY_PATH/$TESTS_NAME.exe
+
+unitTesting:
+  tags:
+    - seminars
+  stage: unitTests
+  
+  script:
+    - cd $BINARY_PATH
+    - valgrind --log-file=valgrindOutput.txt ./$TESTS_NAME > unitTestOutput.txt
+    - if [[ `cat unitTestOutput.txt` =~ "FAILED TESTS" ]];then exit 1;else exit 0;fi
+    - if [[ `cat valgrindOutput.txt` =~ "no leaks are possible" ]];then exit 0;else exit 1;fi
+    
+  artifacts:
+    paths:
+      - $BINARY_PATH/unitTestOutput.txt
+      - $BINARY_PATH/valgrindOutput.txt
+    when: always
+
+integrationTesting:
+  tags:
+    - seminars
+  stage: integrationTests
+
+  script:
+    - cd $BINARY_PATH
+    - valgrind --log-file=valgrindOutputEncode.txt ./$PROJECT_NAME ../test_files/input.bin e ../encoded.bin > outputEncode.txt
+    - if [[ `cat valgrindOutputEncode.txt` =~ "no leaks are possible" ]];then exit 0;else exit 1;fi
+    - valgrind --log-file=valgrindOutputDecode.txt ./$PROJECT_NAME ../encoded.bin d ../decoded.bin > outputDecode.txt
+    - if [[ `cat valgrindOutputDecode.txt` =~ "no leaks are possible" ]];then exit 0;else exit 1;fi
+    - cmp ../encoded.bin ../test_files/output.bin
+    - cmp ../decoded.bin ../test_files/input.bin
+
+  artifacts:
+    paths:
+      - encoded.bin
+      - decoded.bin
+      - $BINARY_PATH/outputEncode.txt
+      - $BINARY_PATH/outputDecode.txt
+      - $BINARY_PATH/valgrindOutputEncode.txt
+      - $BINARY_PATH/valgrindOutputDecode.txt
+    when: always

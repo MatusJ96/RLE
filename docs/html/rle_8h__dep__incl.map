@@ -1,0 +1,5 @@
+<map id="include/rle.h" name="include/rle.h">
+<area shape="rect" id="node1" title="Declaration of RLE module." alt="" coords="45,5,137,32"/>
+<area shape="rect" id="node2" href="$rle_8c.html" title="Implementation of RLE module." alt="" coords="5,80,75,107"/>
+<area shape="rect" id="node3" href="$main_8c.html" title="Main file of the project implements application logic." alt="" coords="99,80,186,107"/>
+</map>

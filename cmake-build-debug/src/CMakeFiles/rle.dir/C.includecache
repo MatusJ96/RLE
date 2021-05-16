@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../include/rle.h
+stdint.h
+-
+
+C:/C/rle_naive/src/rle.c
+rle.h
+C:/C/rle_naive/src/rle.h
+stdio.h
+-
+
